@@ -26,7 +26,3 @@ CONFIG_SECURE_BOOT_SIGNING_KEY="keys/app_signing_ecdsa256.pem"
 # before it is reverted. The update itself just arrived over Wi-Fi, so it usually passes
 # in the first minutes.
 CONFIG_APP_OTA_SELFTEST_TIMEOUT_S=1800
-
-# RadioLib's ESP-IDF HAL needs a 1 ms tick: LoRaWAN receive windows open 1-2 s after an
-# uplink and must be hit to within a few milliseconds.
-CONFIG_FREERTOS_HZ=1000
