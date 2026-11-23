@@ -40,6 +40,8 @@ struct Uplink {
 QueueHandle_t s_queue;
 app_lora_rx_cb_t s_on_downlink;
 volatile bool s_session_active;
+portMUX_TYPE s_stats_lock = portMUX_INITIALIZER_UNLOCKED;
+app_lora_stats_t s_stats;
 
 EspHal *s_hal;
 SX1276 *s_radio;
@@ -124,6 +126,15 @@ void lora_sleep(RadioLibTime_t ms)
 
 void deliver(const uint8_t *data, size_t len, const LoRaWANEvent_t &ev)
 {
+    /* The SX1276 keeps the last packet's RSSI and SNR until the next one arrives. */
+    float rssi = s_radio->getRSSI();
+    float snr = s_radio->getSNR();
+    taskENTER_CRITICAL(&s_stats_lock);
+    s_stats.downlink_us = esp_timer_get_time();
+    s_stats.downlink_rssi = rssi;
+    s_stats.downlink_snr = snr;
+    taskEXIT_CRITICAL(&s_stats_lock);
+
     /* Port 0 carries MAC commands only, which RadioLib has already handled. */
     if (ev.fPort == 0 || !s_on_downlink) {
         return;
@@ -160,6 +171,9 @@ void send(const Uplink &up)
         ESP_LOGW(TAG, "uplink on port %u failed: %d", up.port, state);
         return;
     }
+    taskENTER_CRITICAL(&s_stats_lock);
+    s_stats.uplink_us = esp_timer_get_time();
+    taskEXIT_CRITICAL(&s_stats_lock);
     ESP_LOGI(TAG, "uplink sent: port %u, fcnt %lu%s", up.port, (unsigned long)ev_up.fCnt,
              up.confirmed ? (state > 0 ? ", confirmed" : ", NOT confirmed") : "");
     if (state > 0) {
@@ -282,10 +296,18 @@ extern "C" bool app_lora_session_active(void)
     return s_session_active;
 }
 
+extern "C" void app_lora_get_stats(app_lora_stats_t *out)
+{
+    taskENTER_CRITICAL(&s_stats_lock);
+    *out = s_stats;
+    taskEXIT_CRITICAL(&s_stats_lock);
+}
+
 #else  /* !CONFIG_APP_LORA_ENABLE */
 
 extern "C" esp_err_t app_lora_start(app_lora_rx_cb_t) { return ESP_ERR_NOT_SUPPORTED; }
 extern "C" esp_err_t app_lora_send(uint8_t, const uint8_t *, size_t, bool) { return ESP_ERR_NOT_SUPPORTED; }
 extern "C" bool app_lora_session_active(void) { return false; }
+extern "C" void app_lora_get_stats(app_lora_stats_t *out) { *out = {}; }
 
 #endif

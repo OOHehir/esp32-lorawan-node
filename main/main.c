@@ -10,6 +10,7 @@
 #include "app_ota.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "shed_display.h"
 #include "shed_io.h"
 
 void app_main(void)
@@ -21,6 +22,11 @@ void app_main(void)
     esp_err_t err = shed_io_start();
     if (err != ESP_OK) {
         ESP_LOGE("main", "shed I/O not started: %s", esp_err_to_name(err));
+    }
+
+    esp_err_t disp_err = shed_display_start(err);
+    if (disp_err != ESP_OK && disp_err != ESP_ERR_NOT_SUPPORTED) {
+        ESP_LOGW("main", "no status display: %s", esp_err_to_name(disp_err));
     }
 
     /* An OTA image stays on probation until the LoRaWAN session is up, so one that breaks

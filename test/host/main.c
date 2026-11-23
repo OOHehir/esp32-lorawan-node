@@ -11,6 +11,7 @@ void test_sha_hex(void);
 void test_mqtt_cmd(void);
 void test_shed_proto(void);
 void test_lora_wait(void);
+void test_shed_screen(void);
 
 int main(void)
 {
@@ -22,6 +23,7 @@ int main(void)
     test_mqtt_cmd();
     test_shed_proto();
     test_lora_wait();
+    test_shed_screen();
 
     printf("\n%d checks, %d failed\n", tests_run, tests_failed);
     return tests_failed == 0 ? 0 : 1;

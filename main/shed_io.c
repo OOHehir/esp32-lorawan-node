@@ -24,6 +24,7 @@ static portMUX_TYPE s_lock = portMUX_INITIALIZER_UNLOCKED;
 static uint8_t s_outputs;        /* bit n = output n+1 on */
 static volatile uint8_t s_inputs; /* debounced; bit n = input n active */
 static esp_timer_handle_t s_pulse_timer[SHED_OUTPUTS];
+static uint32_t s_changes;        /* under s_lock */
 
 static void send_status(shed_reason_t reason, bool confirmed)
 {
@@ -42,6 +43,7 @@ static void set_output(int idx, bool on)
 {
     taskENTER_CRITICAL(&s_lock);
     s_outputs = on ? (s_outputs | (1u << idx)) : (s_outputs & ~(1u << idx));
+    s_changes++;
     taskEXIT_CRITICAL(&s_lock);
     if (s_out_gpio[idx] >= 0) {
         gpio_set_level(s_out_gpio[idx], on == CONFIG_SHED_OUT_ACTIVE_HIGH);
@@ -114,7 +116,10 @@ static void io_task(void *arg)
             stable = 0;
         } else if (now != s_inputs && ++stable >= DEBOUNCE_POLLS) {
             ESP_LOGI(TAG, "inputs 0x%02x -> 0x%02x", s_inputs, now);
+            taskENTER_CRITICAL(&s_lock);
             s_inputs = now;
+            s_changes++;
+            taskEXIT_CRITICAL(&s_lock);
             send_status(SHED_REASON_INPUT, false);
         }
         if (esp_timer_get_time() - last_heartbeat >= (int64_t)CONFIG_APP_LORA_HEARTBEAT_S * 1000000) {
@@ -122,6 +127,15 @@ static void io_task(void *arg)
             send_status(SHED_REASON_HEARTBEAT, false);
         }
     }
+}
+
+void shed_io_get_state(shed_io_state_t *out)
+{
+    taskENTER_CRITICAL(&s_lock);
+    out->inputs = s_inputs;
+    out->outputs = s_outputs;
+    out->changes = s_changes;
+    taskEXIT_CRITICAL(&s_lock);
 }
 
 esp_err_t shed_io_start(void)

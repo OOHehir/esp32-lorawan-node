@@ -33,6 +33,15 @@ esp_err_t app_lora_send(uint8_t port, const uint8_t *data, size_t len, bool conf
 /* True once a session is active, whether newly joined or restored from NVS. */
 bool app_lora_session_active(void);
 
+typedef struct {
+    int64_t uplink_us;      /* esp_timer_get_time() of the last uplink sent; 0 = none */
+    int64_t downlink_us;    /* of the last downlink received, MAC-only ones included; 0 = none */
+    float downlink_rssi;    /* dBm, of that downlink */
+    float downlink_snr;     /* dB */
+} app_lora_stats_t;
+
+void app_lora_get_stats(app_lora_stats_t *out);
+
 #ifdef __cplusplus
 }
 #endif

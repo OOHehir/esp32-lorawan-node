@@ -22,10 +22,13 @@ UNITS = ../../components/app_httpd/json_util.c \
         ../../components/app_ota/sha_hex.c \
         ../../components/app_mqtt/mqtt_cmd.c \
         ../../main/shed_proto.c \
-        ../../components/app_lora/lora_wait.c
+        ../../components/app_lora/lora_wait.c \
+        ../../main/shed_screen.c \
+        ../../main/oled_fb.c \
+        ../../main/font5x7.c
 TESTS = main.c test_json_util.c test_dns_pack.c test_update_policy.c \
         test_rollback_policy.c test_sha_hex.c test_mqtt_cmd.c \
-        test_shed_proto.c test_lora_wait.c
+        test_shed_proto.c test_lora_wait.c test_shed_screen.c
 
 BIN = run_tests
 

@@ -44,4 +44,52 @@ config SHED_OUT_ACTIVE_HIGH
 
 endmenu
 
+menu "Status display (defaults: Heltec WiFi LoRa 32 V2)"
+
+config SHED_DISPLAY_ENABLE
+    bool "Show status on an SSD1306 128x64 I2C OLED"
+    default y if IDF_TARGET_ESP32
+    help
+        LoRaWAN, Wi-Fi, input and output state. Without a panel the node logs one
+        warning at boot and carries on. On by default only for the ESP32, the Heltec V2's
+        chip: on other boards the default pins below may be the console or flash.
+
+if SHED_DISPLAY_ENABLE
+
+config SHED_DISPLAY_SDA_GPIO
+    int "SDA GPIO"
+    default 4
+
+config SHED_DISPLAY_SCL_GPIO
+    int "SCL GPIO"
+    default 15
+
+config SHED_DISPLAY_RST_GPIO
+    int "Reset GPIO (-1 = none)"
+    default 16
+
+config SHED_DISPLAY_VEXT_GPIO
+    int "Panel power enable GPIO, active low (-1 = none)"
+    default 21
+    help
+        Heltec boards power the OLED from Vext, switched by this pin. It also powers the
+        Vext header pin.
+
+config SHED_DISPLAY_TIMEOUT_S
+    int "Seconds before the screen turns off (0 = never)"
+    default 120
+    range 0 86400
+    help
+        OLEDs burn in. The screen comes back on with any input or output change: the PRG
+        button, a contact, or a command from the network. A button press also sends its
+        usual uplink.
+
+config SHED_DISPLAY_FLIP
+    bool "Rotate 180 degrees"
+    default n
+
+endif
+
+endmenu
+
 endmenu

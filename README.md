@@ -48,6 +48,20 @@ Wi-Fi: join the setup network the node raises, or write credentials by cable wit
 | PRG button | 0 | active low |
 | Input 1, 2 | 32, 33 | contact to GND, internal pull-up |
 | Output 1, 2 | 23, 22 | active high; `menuconfig` → Shed I/O to change or invert |
+| OLED SDA, SCL, reset, Vext | 4, 15, 16, 21 | on-board SSD1306; `menuconfig` → Status display |
+
+The OLED alternates every 4 s between two pages in large text:
+
+```
+LoRa OK 15s      Dn 2m -97dBm      LoRa state, time since the last uplink;
+WiFi -67dBm      SNR 7.5dB         last downlink's age, RSSI and SNR;
+In  - 1 -        192.168.          Wi-Fi signal and address;
+Out 1 -          1.20              active inputs (B = PRG button) and outputs
+```
+
+It turns off after 2 minutes to avoid burn-in and comes back on with any input or output
+change, including a command from the network. Pressing PRG wakes it, and also sends a
+status uplink.
 
 Uplinks (port 1) decode to `button`, `input1`, `input2`, `output1`, `output2` and `reason`
 (`heartbeat` every 15 min, `input`, `output`, `boot`). Downlinks (port 2) take
@@ -91,8 +105,8 @@ join as a replay.
 ./tools/run_tests.sh      # host tests: C units, formatter contract, partition layout
 ```
 
-The radio, GPIO and OTA paths need the board; they were exercised by hand on the
-reference board, not by these tests.
+The radio, GPIO, OLED and OTA paths need the board; they were exercised by hand on the
+reference board, not by these tests. The screen's text and rendering are host-tested.
 
 ## Documentation
 
