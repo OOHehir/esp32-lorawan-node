@@ -102,3 +102,7 @@ reference board, not by these tests.
 ## Licence
 
 Apache-2.0, see [LICENSE](LICENSE). RadioLib, fetched at build time, is MIT.
+
+---
+
+Built by Owen O'Hehir — embedded Linux, Yocto, IoT & Matter consulting at electronicsconsult.com. Open to new projects worldwide.
