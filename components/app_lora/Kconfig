@@ -1,0 +1,62 @@
+menu "app_lora -- LoRaWAN link (RadioLib, SX1276)"
+
+config APP_LORA_ENABLE
+    bool "Enable the LoRaWAN link"
+    default y
+
+if APP_LORA_ENABLE
+
+config APP_LORA_DEV_EUI
+    string "DevEUI (16 hex digits, MSB first)"
+    default ""
+    help
+        From the device's page in the TTN console. Set it in sdkconfig.local, which git
+        ignores, together with the JoinEUI and AppKey.
+
+config APP_LORA_JOIN_EUI
+    string "JoinEUI / AppEUI (16 hex digits, MSB first)"
+    default "0000000000000000"
+
+config APP_LORA_APP_KEY
+    string "AppKey (32 hex digits, MSB first)"
+    default ""
+    help
+        LoRaWAN 1.0.4 root key. Secret: anyone holding it can impersonate the device.
+
+config APP_LORA_HEARTBEAT_S
+    int "Seconds between heartbeat uplinks"
+    default 900
+    range 60 86400
+
+config APP_LORA_JOIN_RETRY_MAX_S
+    int "Longest wait between join attempts"
+    default 900
+    range 60 3600
+
+menu "Radio pins (defaults: Heltec WiFi LoRa 32 V2)"
+    config APP_LORA_PIN_SCK
+        int "SCK"
+        default 5
+    config APP_LORA_PIN_MISO
+        int "MISO"
+        default 19
+    config APP_LORA_PIN_MOSI
+        int "MOSI"
+        default 27
+    config APP_LORA_PIN_NSS
+        int "NSS (chip select)"
+        default 18
+    config APP_LORA_PIN_RST
+        int "RESET"
+        default 14
+    config APP_LORA_PIN_DIO0
+        int "DIO0"
+        default 26
+    config APP_LORA_PIN_DIO1
+        int "DIO1"
+        default 35
+endmenu
+
+endif
+
+endmenu

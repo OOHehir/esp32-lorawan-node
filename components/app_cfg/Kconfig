@@ -1,0 +1,36 @@
+menu "app_cfg -- device configuration"
+
+config APP_CFG_NAMESPACE
+    string "NVS namespace for application configuration"
+    default "appcfg"
+    help
+        Every persistent setting the template owns lives in this one namespace, so a
+        factory reset has a single, auditable definition.
+
+config APP_CFG_PERSIST_PARTITION
+    string "NVS partition for data that survives a factory reset"
+    default "persist"
+    help
+        Label of a second NVS partition, opened with app_cfg_persist_open(). A factory
+        reset, Wi-Fi provisioning (tools/provision_nvs.sh, which rewrites the main nvs
+        partition) and /api/forget leave it alone, so it is the place for anything that
+        must never go backwards: a monotonic counter, a network join nonce, a pairing.
+
+config APP_CFG_AP_PASS_SALT
+    string "SoftAP passphrase salt"
+    default "esp32-lorawan-node"
+    help
+        Mixed with the device MAC to derive the provisioning AP passphrase. The default
+        is public, so anyone can compute any device's passphrase from the MAC its SSID
+        advertises. Set your own in sdkconfig.local, which git ignores:
+            CONFIG_APP_CFG_AP_PASS_SALT="<random string>"
+
+config APP_CFG_AP_PASS_FIXED
+    string "Fixed SoftAP passphrase (empty = derive per device)"
+    default ""
+    help
+        Leave empty in anything you ship. A fixed passphrase is convenient on a bench
+        where you provision the same board repeatedly and would rather not read the
+        boot log every time.
+
+endmenu

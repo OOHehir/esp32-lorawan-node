@@ -1,0 +1,47 @@
+menu "Project"
+
+config APP_PROJECT_NAME_SLUG
+    string "Project slug"
+    default "esp32-lorawan-node"
+    help
+        Used for the mDNS hostname and the provisioning AP SSID, both of which become
+        `<slug>-<last 3 MAC bytes>`. Must be a valid DNS label: lowercase letters,
+        digits and hyphens only.
+
+        One of the three things to change when you copy this template into a new
+        project -- the others are project() in the top-level CMakeLists.txt and
+        APP_CFG_AP_PASS_SALT. See "Forking this template" in README.md.
+
+menu "Shed I/O (defaults: Heltec WiFi LoRa 32 V2)"
+
+config SHED_BUTTON_GPIO
+    int "PRG button GPIO (active low)"
+    default 0
+
+config SHED_IN1_GPIO
+    int "Input 1 GPIO (active low, internal pull-up; -1 = unused)"
+    default 32
+    help
+        Wire a contact (door switch, reed relay) between this pin and GND.
+
+config SHED_IN2_GPIO
+    int "Input 2 GPIO (active low, internal pull-up; -1 = unused)"
+    default 33
+
+config SHED_OUT1_GPIO
+    int "Output 1 GPIO (-1 = unused)"
+    default 23
+
+config SHED_OUT2_GPIO
+    int "Output 2 GPIO (-1 = unused)"
+    default 22
+
+config SHED_OUT_ACTIVE_HIGH
+    bool "Outputs are active high"
+    default y
+    help
+        Turn off for relay boards that switch on a low input.
+
+endmenu
+
+endmenu
