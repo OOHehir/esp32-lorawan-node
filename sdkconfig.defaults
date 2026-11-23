@@ -106,3 +106,7 @@ CONFIG_SECURE_BOOT_SIGNING_KEY="keys/app_signing_rsa3072.pem"
 
 # Topics are <prefix>/<device-id>/...; one broker carries several projects.
 CONFIG_APP_MQTT_TOPIC_PREFIX="esp32-lorawan-node"
+
+# RadioLib's ESP-IDF HAL needs a 1 ms tick on every target: LoRaWAN receive windows open
+# 1-5 s after an uplink and must be hit to within a few milliseconds.
+CONFIG_FREERTOS_HZ=1000

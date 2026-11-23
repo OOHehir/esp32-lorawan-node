@@ -48,6 +48,11 @@ jobs:
           ./tools/gen_signing_key.sh
           ./tools/gen_certs.sh ci.example 127.0.0.1
 
+      - name: Point OTA at a placeholder server
+        # The build refuses to configure without CONFIG_APP_OTA_BASE_URL, so an image can
+        # never ship aimed at a default nobody serves. Real builds set it in sdkconfig.local.
+        run: echo 'CONFIG_APP_OTA_BASE_URL="https://ci.example:8443/fw"' >> sdkconfig.defaults
+
       - name: Build
         uses: espressif/esp-idf-ci-action@v1
         with:
@@ -83,6 +88,7 @@ jobs:
           fetch-depth: 0
       - run: ./tools/gen_signing_key.sh && ./tools/gen_certs.sh ci.example 127.0.0.1
       - run: echo "CONFIG_APP_HTTPD_ENABLE=n" >> sdkconfig.defaults
+      - run: echo 'CONFIG_APP_OTA_BASE_URL="https://ci.example:8443/fw"' >> sdkconfig.defaults
       - uses: espressif/esp-idf-ci-action@v1
         with:
           esp_idf_version: ${{ env.IDF_VERSION }}
@@ -102,6 +108,7 @@ jobs:
       # Deliberately NO gen_certs.sh here: bundle mode must build with no CA present.
       - run: ./tools/gen_signing_key.sh
       - run: echo "CONFIG_APP_TRUST_CERT_BUNDLE=y" >> sdkconfig.defaults
+      - run: echo 'CONFIG_APP_OTA_BASE_URL="https://ci.example:8443/fw"' >> sdkconfig.defaults
       - uses: espressif/esp-idf-ci-action@v1
         with:
           esp_idf_version: ${{ env.IDF_VERSION }}
@@ -119,7 +126,10 @@ jobs:
         with:
           fetch-depth: 0
       - run: ./tools/gen_signing_key.sh && ./tools/gen_certs.sh ci.example 127.0.0.1
-      - run: echo "CONFIG_APP_MQTT_ENABLE=y" >> sdkconfig.defaults
+      - run: |
+          echo "CONFIG_APP_MQTT_ENABLE=y" >> sdkconfig.defaults
+          echo 'CONFIG_APP_MQTT_BROKER_URI="mqtts://ci.example:8883"' >> sdkconfig.defaults
+      - run: echo 'CONFIG_APP_OTA_BASE_URL="https://ci.example:8443/fw"' >> sdkconfig.defaults
       - uses: espressif/esp-idf-ci-action@v1
         with:
           esp_idf_version: ${{ env.IDF_VERSION }}
@@ -138,6 +148,7 @@ jobs:
         with:
           fetch-depth: 0
       - run: ./tools/gen_certs.sh ci.example 127.0.0.1
+      - run: echo 'CONFIG_APP_OTA_BASE_URL="https://ci.example:8443/fw"' >> sdkconfig.defaults
       - run: |
           echo "CONFIG_SECURE_SIGNED_APPS_NO_SECURE_BOOT=n" >> sdkconfig.defaults
           echo "CONFIG_SECURE_BOOT_BUILD_SIGNED_BINARIES=n" >> sdkconfig.defaults
